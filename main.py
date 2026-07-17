@@ -2,7 +2,7 @@ import logging
 import os
 from fastapi import FastAPI,HTTPException
 from collections import defaultdict
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam
@@ -23,8 +23,26 @@ MAX_HISTORY = 10
 SYSTEM_PROMPT: ChatCompletionSystemMessageParam = {"role": "system", "content": "You're an AI Assistant chat. Answer me briefly and to the point "}
 
 class ChatRequest(BaseModel):
-    user_id: str
-    message: str
+    user_id: str =Field (
+        min_length = 3,
+        max_length = 32,
+        pattern = r"^[a-zA-z0-9_-]+$"
+        
+    )
+    message: str = Field (
+        min_length = 1,
+        max_length = 2000,
+        
+    )
+
+@app.get("/")
+async def open():
+    return {
+        "name": "AI chat API",
+        "status": "running",
+        "docs": "/docs"
+    }
+
     
 @app.post("/chat")
 async def chat(request: ChatRequest):
