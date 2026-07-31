@@ -39,7 +39,9 @@ app/
 
 ## Installation
 
-git bash```
+git bash
+
+```
 git clone https://github.com/dil2324/Ai-Assistant-API
 cd your_project
 pip install -r requirements.txt
@@ -48,7 +50,5 @@ cp env.example .env
 docker compose up --build
 
 uvicorn app.main:app --reload
-
-```
 
 ```
