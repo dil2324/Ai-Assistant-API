@@ -3,11 +3,6 @@ services:
     image: postgres:17
     container_name: postgres-ai
     restart: unless-stopped
-
-    environment:
-      POSTGRES_USER: postgres
-      
-      POSTGRES_DB: ai_chat
     
     ports:
       - "5432:5432"
