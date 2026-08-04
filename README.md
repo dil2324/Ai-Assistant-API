@@ -20,6 +20,8 @@ AI Assistant API for answering questions using OpenAI.
 
 6. Persistent chat history
 
+7. Deploy my web site: https://ai-assistant-api-gx5a.onrender.com/docs
+
 ## Stack
 
 Python 3.12,Docker,Postgresql,Git bash,Sqlalchemy,Openai api,Fast API,python-dotenv
