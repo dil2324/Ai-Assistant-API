@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter, HTTPException
-from app.schemas import ChatRequest
+from app.schemas import ChatRequest, ClearRequest
 from app.services import client
 from app.config import SYSTEM_PROMPT, MAX_HISTORY
 from app.crud import save_message, get_history, clear_history
@@ -74,11 +74,11 @@ async def chat(request: ChatRequest):
         db.close()
     
 @router.post("/clear")
-async def clear(request: ChatRequest):
+async def clear(request: ClearRequest):
     db = SessionLocal()
-    
+
     try:
-        clear_history(db,request.user_id)
+        clear_history(db, request.user_id)
         return {"status": "cleared"}
     finally:
         db.close()
