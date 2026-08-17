@@ -10,7 +10,7 @@ AI Assistant API for answering questions using OpenAI.
 
 1. PostgreSQL database running in Docker
 
-2. Endpoint: /,/chat and /clear
+2. Endpoints: `/`, `/register`, `/login`, `/me`, `/chat` and `/clear`
 
 3. Openai api with model chat gpt
 
@@ -47,7 +47,7 @@ git bash
 git clone https://github.com/dil2324/Ai-Assistant-API
 cd your_project
 pip install -r requirements.txt
-cp env.example .env
+copy .env.example .env
 
 docker compose up --build
 

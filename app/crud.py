@@ -1,14 +1,16 @@
-from sqlalchemy.orm import Session
-from typing import cast
+from typing import cast, TYPE_CHECKING
 from openai.types.chat import ChatCompletionMessageParam
 from app.models import Message
 
-def clear_history(db: Session,user_id: str):
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
+
+def clear_history(db: "Session",user_id: str):
     db.query(Message).filter(Message.user_id == user_id).delete()
     db.commit()
     
 
-def get_history(db: Session,user_id: str) -> list[ChatCompletionMessageParam]:
+def get_history(db: "Session",user_id: str) -> list[ChatCompletionMessageParam]:
     messages = (
         db.query(Message)
         .filter(Message.user_id == user_id)
@@ -31,7 +33,7 @@ def get_history(db: Session,user_id: str) -> list[ChatCompletionMessageParam]:
     
     return history
 
-def save_message(db: Session,user_id: str,role: str,content: str,):
+def save_message(db: "Session",user_id: str,role: str,content: str,):
     message = Message(
         user_id = user_id,
         role = role,

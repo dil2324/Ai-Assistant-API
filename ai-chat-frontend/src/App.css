@@ -107,7 +107,8 @@
   gap: 14px;
 }
 
-textarea {
+textarea,
+input {
   width: 100%;
   min-height: 120px;
   border-radius: 20px;
@@ -119,8 +120,43 @@ textarea {
   resize: vertical;
 }
 
-textarea:focus {
+input {
+  min-height: 50px;
+}
+
+textarea:focus,
+input:focus {
   outline: 2px solid #2563eb;
+}
+
+.auth-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 28px 28px;
+}
+
+.auth-switch {
+  display: flex;
+  gap: 8px;
+}
+
+.auth-switch button {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: transparent;
+  color: #e2e8f0;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.auth-switch button.active {
+  background: #2563eb;
+}
+
+.user-bar {
+  padding: 16px 28px 0;
+  color: #93c5fd;
 }
 
 .actions-row {
