@@ -1,0 +1,39 @@
+services:
+  - type: web
+    runtime: python
+    name: ai-chat-api
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      - key: OPENAI_API
+        sync: false
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ai-chat-db
+          property: connectionString
+      # Replace this in the Render dashboard after the frontend gets its URL.
+      - key: FRONTEND_URL
+        sync: false
+
+  - type: web
+    runtime: static
+    name: ai-chat-frontend
+    rootDir: ai-chat-frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      # Set this to the public URL of ai-chat-api in the Render dashboard.
+      - key: VITE_API_URL
+        sync: false
+
+databases:
+  - name: ai-chat-db
+    plan: free

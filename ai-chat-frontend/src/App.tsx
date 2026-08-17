@@ -11,6 +11,10 @@ type Message = {
 
 type AuthMode = 'login' | 'register'
 
+// In development this remains "/api" and Vite forwards requests to FastAPI.
+// Render supplies VITE_API_URL at build time for the deployed static site.
+const API_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '')
+
 const SYSTEM_MESSAGE: Message = {
   role: 'system',
   content: 'Ты говоришь с AI-ассистентом. Пиши коротко и понятно.'
@@ -29,7 +33,7 @@ function App() {
 
   const handleAuth = async () => {
     try {
-      const response = await fetch(`/api/${authMode}`, {
+      const response = await fetch(`${API_URL}/${authMode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -59,7 +63,7 @@ function App() {
     setError('')
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +91,7 @@ function App() {
     if (!token) return
 
     try {
-      const response = await fetch('/api/clear', {
+      const response = await fetch(`${API_URL}/clear`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({})

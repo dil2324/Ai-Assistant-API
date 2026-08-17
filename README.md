@@ -54,3 +54,21 @@ docker compose up --build
 uvicorn app.main:app --reload
 
 ```
+
+## Deploy to Render
+
+The repository includes `render.yaml`, which creates three resources: a FastAPI
+web service, a Vite static site, and PostgreSQL. Create a **Blueprint** in
+Render from this repository and provide `OPENAI_API` when prompted.
+
+After the first deploy, copy the public URLs shown by Render and set these
+environment variables in the corresponding services:
+
+```text
+ai-chat-frontend / VITE_API_URL = https://<your-api>.onrender.com
+ai-chat-api / FRONTEND_URL = https://<your-frontend>.onrender.com
+```
+
+Redeploy both services after saving the variables. `VITE_API_URL` is embedded
+in the static frontend during its build; `FRONTEND_URL` tells FastAPI which
+browser origin is allowed to call the API.
