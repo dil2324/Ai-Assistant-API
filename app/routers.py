@@ -1,5 +1,5 @@
 import logging
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 from typing import Generator, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -11,6 +11,7 @@ from app.crud import save_message, get_history, clear_history
 from app.database import SessionLocal
 from app.models import User
 from app.auth import create_access_token, decode_access_token, hash_password, verify_password
+from app.limiter import limiter
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletionUserMessageParam
 
 router = APIRouter()
@@ -61,12 +62,15 @@ async def root():
 
 
 @router.post("/register", response_model=TokenResponse)
-async def register(request: RegisterRequest, db: "Session" = Depends(get_db)) -> TokenResponse:
-    existing_user = db.query(User).filter(User.username == request.username).first()
+@limiter.limit("5/minute")
+async def register(
+    request: Request, body: RegisterRequest, db: "Session" = Depends(get_db)
+) -> TokenResponse:
+    existing_user = db.query(User).filter(User.username == body.username).first()
     if existing_user is not None:
         raise HTTPException(status_code=400, detail="Username already exists")
 
-    user = User(username=request.username, password_hash=hash_password(request.password))
+    user = User(username=body.username, password_hash=hash_password(body.password))
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -76,9 +80,12 @@ async def register(request: RegisterRequest, db: "Session" = Depends(get_db)) ->
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(request: LoginRequest, db: "Session" = Depends(get_db)) -> TokenResponse:
-    user = db.query(User).filter(User.username == request.username).first()
-    if user is None or not verify_password(request.password, user.password_hash):
+@limiter.limit("5/minute")
+async def login(
+    request: Request, body: LoginRequest, db: "Session" = Depends(get_db)
+) -> TokenResponse:
+    user = db.query(User).filter(User.username == body.username).first()
+    if user is None or not verify_password(body.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     token = create_access_token(str(user.id))
@@ -91,15 +98,17 @@ async def get_me(current_user: User = Depends(get_current_user)) -> UserResponse
 
 
 @router.post("/chat")
+@limiter.limit("5/minute")
 async def chat(
-    request: ChatRequest,
+    request: Request,
+    body: ChatRequest,
     current_user: User = Depends(get_current_user),
     db: "Session" = Depends(get_db),
 ):
     user_id = str(current_user.id)
     history = get_history(db, user_id)
 
-    user_msg: ChatCompletionUserMessageParam = {"role": "user", "content": request.message}
+    user_msg: ChatCompletionUserMessageParam = {"role": "user", "content": body.message}
 
     try:
         messages_to_send: list[ChatCompletionMessageParam] = [
@@ -113,7 +122,7 @@ async def chat(
         )
 
         gpt_answer = response.choices[0].message.content or "Something went wrong"
-        save_message(db, user_id, "user", request.message)
+        save_message(db, user_id, "user", body.message)
         save_message(
             db,
             user_id,
